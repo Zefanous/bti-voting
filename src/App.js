@@ -5,7 +5,7 @@ import {
 } from "recharts";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API = "https://btielections.kesug.com/voting-api";
+const API = "";
 
 const BADGE_SRC = "data:image/jpeg;base64,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";
 
@@ -240,7 +240,7 @@ function LoginPage({ onLogin }) {
     if (!regNo.trim() || !code.trim()) return setError("Please fill in all fields.");
     setLoading(true); setError("");
     try {
-      const data = await api("auth.php?type=student", {
+      const data = await api("api/auth?type=student", {
         method: "POST",
         body: JSON.stringify({ regNo: regNo.trim(), votingCode: code.trim() }),
       });
@@ -253,7 +253,7 @@ function LoginPage({ onLogin }) {
     if (!aId.trim() || !aPwd.trim()) return setError("Please fill in all fields.");
     setLoading(true); setError("");
     try {
-      await api("auth.php?type=admin", {
+      await api("api/auth?type=admin", {
         method: "POST",
         body: JSON.stringify({ id: aId.trim(), password: aPwd.trim() }),
       });
@@ -330,11 +330,11 @@ function AdminApp({ onLogout }) {
   const loadAll = async () => {
     try {
       const [p, c, s, r, st] = await Promise.all([
-        api("positions.php"),
-        api("candidates.php"),
-        api("voters.php"),
-        api("votes.php?results"),
-        api("votes.php?status"),
+        api("api/positions"),
+        api("api/candidates"),
+        api("api/voters"),
+        api("api/votes?results"),
+        api("api/votes?status"),
       ]);
       setPositions(p);
       setCandidates(c.map(x => ({ ...x, positionId: x.position_id })));
@@ -355,14 +355,14 @@ function AdminApp({ onLogout }) {
 
   const setElectionOpen = async (val) => {
     const s = { is_open: val ? 1 : 0, results_published: resultsPublished ? 1 : 0 };
-    await api("votes.php?status", { method: "PATCH", body: JSON.stringify(s) });
+    await api("api/votes?status", { method: "PATCH", body: JSON.stringify(s) });
     setStatus(prev => ({ ...prev, is_open: val ? "1" : "0" }));
   };
   const setResultsPublished = async (val) => {
     const s = { is_open: electionOpen ? 1 : 0, results_published: val ? 1 : 0 };
-    await api("votes.php?status", { method: "PATCH", body: JSON.stringify(s) });
+    await api("api/votes?status", { method: "PATCH", body: JSON.stringify(s) });
     setStatus(prev => ({ ...prev, results_published: val ? "1" : "0" }));
-    if (val) { const r = await api("votes.php?results"); setResults(r); }
+    if (val) { const r = await api("api/votes?results"); setResults(r); }
   };
 
   if (loading) return (
@@ -472,7 +472,7 @@ function PositionsManager({ positions, setPositions, candidates }) {
     if (positions.find(p => p.name.toLowerCase() === name.toLowerCase())) return setError("Position already exists.");
     setSaving(true);
     try {
-      const newPos = await api("positions.php", { method: "POST", body: JSON.stringify({ name: name.trim() }) });
+      const newPos = await api("api/positions", { method: "POST", body: JSON.stringify({ name: name.trim() }) });
       setPositions(prev => [...prev, newPos]);
       setName(""); setError("");
     } catch(e) { setError(e.message); }
@@ -482,7 +482,7 @@ function PositionsManager({ positions, setPositions, candidates }) {
   const remove = async (id) => {
     if (candidates.some(c => String(c.positionId) === String(id))) return setError("Remove candidates for this position first.");
     try {
-      await api(`positions.php?id=${id}`, { method: "DELETE" });
+      await api(`api/positions?id=${id}`, { method: "DELETE" });
       setPositions(prev => prev.filter(p => String(p.id) !== String(id)));
       setError("");
     } catch(e) { setError(e.message); }
@@ -533,7 +533,7 @@ function CandidatesManager({ candidates, setCandidates, positions, getVoteCount 
     setSaving(true);
     try {
       const initials = form.initials.trim() || form.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-      const newC = await api("candidates.php", {
+      const newC = await api("api/candidates", {
         method: "POST",
         body: JSON.stringify({ name: form.name.trim(), position_id: form.positionId, manifesto: form.manifesto, initials, color: form.color }),
       });
@@ -545,7 +545,7 @@ function CandidatesManager({ candidates, setCandidates, positions, getVoteCount 
 
   const remove = async (id) => {
     try {
-      await api(`candidates.php?id=${id}`, { method: "DELETE" });
+      await api(`api/candidates?id=${id}`, { method: "DELETE" });
       setCandidates(prev => prev.filter(c => String(c.id) !== String(id)));
     } catch(e) { alert(e.message); }
   };
@@ -635,7 +635,7 @@ function VotersManager({ students, setStudents }) {
     if (!form.name.trim() || !form.regNo.trim() || !form.votingCode.trim()) return setError("All fields required.");
     setSaving(true);
     try {
-      const s = await api("voters.php", {
+      const s = await api("api/voters", {
         method: "POST",
         body: JSON.stringify({ name: form.name.trim(), reg_no: form.regNo.trim(), voting_code: form.votingCode.trim() }),
       });
@@ -665,10 +665,10 @@ function VotersManager({ students, setStudents }) {
     if (!csvRows.length) return;
     setSaving(true);
     try {
-      const res = await api("voters.php", { method: "POST", body: JSON.stringify({ students: csvRows }) });
+      const res = await api("api/voters", { method: "POST", body: JSON.stringify({ students: csvRows }) });
       flash(`Imported ${res.count} voter${res.count !== 1 ? "s" : ""} successfully.`);
       // Reload student list
-      const updated = await api("voters.php");
+      const updated = await api("api/voters");
       setStudents(updated.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "1" || x.has_voted === 1 })));
       setCsvRows([]); setCsvPreview(null);
     } catch(e) { setError(e.message); }
@@ -677,14 +677,14 @@ function VotersManager({ students, setStudents }) {
 
   const removeStudent = async (id) => {
     try {
-      await api(`voters.php?id=${id}`, { method: "DELETE" });
+      await api(`api/voters?id=${id}`, { method: "DELETE" });
       setStudents(prev => prev.filter(s => String(s.id) !== String(id)));
     } catch(e) { alert(e.message); }
   };
 
   const resetVote = async (id) => {
     try {
-      await api(`voters.php?id=${id}`, { method: "PATCH" });
+      await api(`api/voters?id=${id}`, { method: "PATCH" });
       setStudents(prev => prev.map(s => String(s.id) === String(id) ? { ...s, hasVoted: false } : s));
     } catch(e) { alert(e.message); }
   };
@@ -945,17 +945,17 @@ function StudentApp({ student, onLogout }) {
   const loadData = async () => {
     try {
       const [p, c, st, mv] = await Promise.all([
-        api("positions.php"),
-        api("candidates.php"),
-        api("votes.php?status"),
-        api(`votes.php?my_votes&student_id=${student.id}`),
+        api("api/positions"),
+        api("api/candidates"),
+        api("api/votes?status"),
+        api(`api/votes?my_votes&student_id=${student.id}`),
       ]);
       setPositions(p);
       setCandidates(c.map(x => ({ ...x, positionId: x.position_id })));
       setStatus(st);
       setVotedPositions(new Set(mv.map(String)));
       if (st.results_published === "1" || st.results_published === 1) {
-        const r = await api("votes.php?results");
+        const r = await api("api/votes?results");
         setResults(r);
       }
     } catch(e) { console.error(e); }
@@ -974,7 +974,7 @@ useEffect(() => { loadData(); }, []);
     if (!candId) return;
     setSubmitting(true); setSubmitError("");
     try {
-      await api("votes.php", {
+      await api("api/votes", {
         method: "POST",
         body: JSON.stringify({ student_id: student.id, position_id: activePos.id, candidate_id: candId }),
       });
