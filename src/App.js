@@ -962,7 +962,8 @@ function StudentApp({ student, onLogout }) {
     setLoading(false);
   };
 
-  useEffect(() => { loadData(); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => { loadData(); }, []);
 
   const getVoteCount     = (cId) => { const r = results.find(x => String(x.id) === String(cId)); return r ? parseInt(r.vote_count) : 0; };
   const getPositionTotal = (pId) => candidates.filter(c => String(c.positionId) === String(pId)).reduce((sum, c) => sum + getVoteCount(c.id), 0);
