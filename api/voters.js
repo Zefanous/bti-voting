@@ -1,10 +1,4 @@
-const mysql = require("mysql2/promise");
-const db = mysql.createPool({
-  host: "sql303.infinityfree.com",
-  user: "if0_42149312",
-  password: "BsZTuoekMZg0",
-  database: "if0_42149312_btivotes",
-});
+const { getRows, appendRow, updateRow, deleteRow, rowsToObjects } = require("./sheets");
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -12,37 +6,84 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  if (req.method === "GET") {
-    const [rows] = await db.query("SELECT * FROM students ORDER BY id ASC");
-    return res.json(rows);
-  }
-  if (req.method === "POST") {
-    const d = req.body;
-    if (d.students) {
-      let count = 0;
-      for (const s of d.students) {
-        await db.query(
-          "INSERT IGNORE INTO students (name,reg_no,voting_code) VALUES (?,?,?)",
-          [s.name, s.reg_no, s.voting_code]
-        );
-        count++;
-      }
-      return res.json({ success: true, count });
+  try {
+    if (req.method === "GET") {
+      const rows = await getRows("Students");
+      const students = rowsToObjects(rows);
+      return res.json(students);
     }
-    const [r] = await db.query(
-      "INSERT INTO students (name,reg_no,voting_code) VALUES (?,?,?)",
-      [d.name, d.reg_no, d.voting_code]
-    );
-    return res.json({ id: r.insertId, ...d, has_voted: 0 });
-  }
-  if (req.method === "DELETE") {
-    await db.query("DELETE FROM votes WHERE student_id=?", [req.query.id]);
-    await db.query("DELETE FROM students WHERE id=?", [req.query.id]);
-    return res.json({ success: true });
-  }
-  if (req.method === "PATCH") {
-    await db.query("UPDATE students SET has_voted=0 WHERE id=?", [req.query.id]);
-    await db.query("DELETE FROM votes WHERE student_id=?", [req.query.id]);
-    return res.json({ success: true });
+
+    if (req.method === "POST") {
+      const d = req.body;
+      const rows = await getRows("Students");
+      const existing = rowsToObjects(rows);
+
+      if (d.students) {
+        // Bulk import
+        let count = 0;
+        const existingRegs = new Set(existing.map(s => s.reg_no));
+        const maxId = existing.length > 0
+          ? Math.max(...existing.map(s => parseInt(s.id) || 0))
+          : 0;
+        let nextId = maxId + 1;
+        for (const s of d.students) {
+          if (!existingRegs.has(s.reg_no)) {
+            await appendRow("Students", [nextId, s.name, s.reg_no, s.voting_code, "FALSE"]);
+            existingRegs.add(s.reg_no);
+            nextId++;
+            count++;
+          }
+        }
+        return res.json({ success: true, count });
+      }
+
+      // Single student
+      const duplicate = existing.find(s => s.reg_no === d.reg_no);
+      if (duplicate) return res.status(400).json({ error: "Registration number already exists" });
+      const id = existing.length > 0
+        ? Math.max(...existing.map(s => parseInt(s.id) || 0)) + 1
+        : 1;
+      await appendRow("Students", [id, d.name, d.reg_no, d.voting_code, "FALSE"]);
+      return res.json({ id: String(id), name: d.name, reg_no: d.reg_no, voting_code: d.voting_code, has_voted: "FALSE" });
+    }
+
+    if (req.method === "DELETE") {
+      const { id } = req.query;
+      const rows = await getRows("Students");
+      const students = rowsToObjects(rows);
+      const student = students.find(s => String(s.id) === String(id));
+      if (!student) return res.status(404).json({ error: "Not found" });
+      // Delete their votes first from Votes sheet
+      const voteRows = await getRows("Votes");
+      const votes = rowsToObjects(voteRows);
+      const studentVotes = votes.filter(v => String(v.student_id) === String(id));
+      // Delete in reverse order to preserve row indices
+      for (const v of studentVotes.reverse()) {
+        await deleteRow("Votes", v._rowIndex);
+      }
+      await deleteRow("Students", student._rowIndex);
+      return res.json({ success: true });
+    }
+
+    if (req.method === "PATCH") {
+      const { id } = req.query;
+      const rows = await getRows("Students");
+      const students = rowsToObjects(rows);
+      const student = students.find(s => String(s.id) === String(id));
+      if (!student) return res.status(404).json({ error: "Not found" });
+      await updateRow("Students", student._rowIndex, [
+        student.id, student.name, student.reg_no, student.voting_code, "FALSE"
+      ]);
+      // Delete their votes
+      const voteRows = await getRows("Votes");
+      const votes = rowsToObjects(voteRows);
+      const studentVotes = votes.filter(v => String(v.student_id) === String(id));
+      for (const v of studentVotes.reverse()) {
+        await deleteRow("Votes", v._rowIndex);
+      }
+      return res.json({ success: true });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
 }

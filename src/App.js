@@ -297,11 +297,11 @@ function LoginPage({ onLogin }) {
             <>
               <div className="form-group">
                 <label>Admin ID</label>
-                <input className="input" placeholder="admin" value={aId} onChange={e => setAId(e.target.value)} />
+                <input className="input" placeholder="Strictly admins only" value={aId} onChange={e => setAId(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Password</label>
-                <input className="input" type="password" placeholder="••••••••" value={aPwd} onChange={e => setAPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && loginAdmin()} />
+                <input className="input" type="password" placeholder="***********" value={aPwd} onChange={e => setAPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && loginAdmin()} />
               </div>
               <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={loginAdmin} disabled={loading}>
                 {loading ? <span className="spinner" /> : <Icon name="lock" />} {loading ? "Logging in..." : "Admin Access"}
@@ -324,8 +324,8 @@ function AdminApp({ onLogout }) {
   const [status, setStatus]         = useState({ is_open: "0", results_published: "0" });
   const [loading, setLoading]       = useState(true);
 
-  const electionOpen      = status.is_open === "1" || status.is_open === 1;
-  const resultsPublished  = status.results_published === "1" || status.results_published === 1;
+  const electionOpen      = status.is_open === "TRUE" || status.is_open === TRUE;
+  const resultsPublished  = status.results_published === "TRUE" || status.results_published === TRUE;
 
   const loadAll = async () => {
     try {
@@ -938,8 +938,8 @@ function StudentApp({ student, onLogout }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const electionOpen     = status.is_open === "1" || status.is_open === 1;
-  const resultsPublished = status.results_published === "1" || status.results_published === 1;
+  const electionOpen     = status.is_open === "TRUE" || status.is_open === TRUE;
+  const resultsPublished = status.results_published === "TRUE" || status.results_published === TRUE;
   const allVoted         = positions.length > 0 && positions.every(p => votedPositions.has(String(p.id)));
 
   const loadData = async () => {
