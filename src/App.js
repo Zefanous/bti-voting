@@ -324,8 +324,8 @@ function AdminApp({ onLogout }) {
   const [status, setStatus]         = useState({ is_open: "0", results_published: "0" });
   const [loading, setLoading]       = useState(true);
 
-  const electionOpen      = status.is_open === "TRUE" || status.is_open === TRUE;
-  const resultsPublished  = status.results_published === "TRUE" || status.results_published === TRUE;
+  const electionOpen      = status.is_open === "TRUE" || status.is_open === true;
+  const resultsPublished  = status.results_published === "TRUE" || status.results_published === true;
 
   const loadAll = async () => {
     try {
@@ -938,8 +938,8 @@ function StudentApp({ student, onLogout }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const electionOpen     = status.is_open === "TRUE" || status.is_open === TRUE;
-  const resultsPublished = status.results_published === "TRUE" || status.results_published === TRUE;
+  const electionOpen     = status.is_open === "TRUE" || status.is_open === true;
+  const resultsPublished = status.results_published === "TRUE" || status.results_published === true;
   const allVoted         = positions.length > 0 && positions.every(p => votedPositions.has(String(p.id)));
 
   const loadData = async () => {
