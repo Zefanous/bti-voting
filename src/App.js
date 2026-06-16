@@ -324,8 +324,8 @@ function AdminApp({ onLogout }) {
   const [status, setStatus]         = useState({ is_open: "0", results_published: "0" });
   const [loading, setLoading]       = useState(true);
 
-  const electionOpen      = status.is_open === "TRUE" || status.is_open === true;
-  const resultsPublished  = status.results_published === "TRUE" || status.results_published === true;
+  const electionOpen      = status.is_open === "TRUE" || status.is_open === "1" || status.is_open === 1 || status.is_open === true
+  const resultsPublished  = status.results_published === "TRUE" || status.results_published === "1" || status.results_published === 1 || status.results_published === true
 
   const loadAll = async () => {
     try {
@@ -338,7 +338,7 @@ function AdminApp({ onLogout }) {
       ]);
       setPositions(p);
       setCandidates(c.map(x => ({ ...x, positionId: x.position_id })));
-      setStudents(s.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "1" || x.has_voted === 1 })));
+      setStudents(s.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "TRUE" || x.has_voted === "1" || x.has_voted === 1 || x.has_voted === true })));
       setResults(r);
       setStatus(st);
     } catch(e) { console.error(e); }
@@ -350,19 +350,24 @@ function AdminApp({ onLogout }) {
   const totalVoters = students.length;
   const votedCount  = students.filter(s => s.hasVoted).length;
 
-  const getVoteCount    = (cId)  => { const r = results.find(x => String(x.id) === String(cId)); return r ? parseInt(r.vote_count) : 0; };
+  const getVoteCount    = (cId)  => { const r = results.find(x => String(x.id) === String(cId)); return r ? (parseInt(r.vote_count) || 0) : 0; };
   const getPositionTotal = (pId) => candidates.filter(c => String(c.positionId) === String(pId)).reduce((sum, c) => sum + getVoteCount(c.id), 0);
 
   const setElectionOpen = async (val) => {
-    const s = { is_open: val ? 1 : 0, results_published: resultsPublished ? 1 : 0 };
+    const s = { is_open: val ? "TRUE" : "FALSE", results_published: resultsPublished ? "TRUE" : "FALSE" };
     await api("api/votes?status", { method: "PATCH", body: JSON.stringify(s) });
-    setStatus(prev => ({ ...prev, is_open: val ? "1" : "0" }));
+    setStatus(prev => ({ ...prev, is_open: val ? "TRUE" : "FALSE" }));
   };
   const setResultsPublished = async (val) => {
-    const s = { is_open: electionOpen ? 1 : 0, results_published: val ? 1 : 0 };
+    const s = { is_open: electionOpen ? "TRUE" : "FALSE", results_published: val ? "TRUE" : "FALSE" };
     await api("api/votes?status", { method: "PATCH", body: JSON.stringify(s) });
-    setStatus(prev => ({ ...prev, results_published: val ? "1" : "0" }));
-    if (val) { const r = await api("api/votes?results"); setResults(r); }
+    setStatus(prev => ({ ...prev, results_published: val ? "TRUE" : "FALSE" }));
+    if (val) { 
+  const r = await api("api/votes?results"); 
+  setResults(r);
+  const s2 = await api("api/voters");
+  setStudents(s2.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "TRUE" || x.has_voted === "1" || x.has_voted === 1 || x.has_voted === true })));
+}
   };
 
   if (loading) return (
@@ -669,7 +674,7 @@ function VotersManager({ students, setStudents }) {
       flash(`Imported ${res.count} voter${res.count !== 1 ? "s" : ""} successfully.`);
       // Reload student list
       const updated = await api("api/voters");
-      setStudents(updated.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "1" || x.has_voted === 1 })));
+      setStudents(updated.map(x => ({ ...x, regNo: x.reg_no, votingCode: x.voting_code, hasVoted: x.has_voted === "TRUE" || x.has_voted === "1" || x.has_voted === 1 || x.has_voted === true })));
       setCsvRows([]); setCsvPreview(null);
     } catch(e) { setError(e.message); }
     setSaving(false);
@@ -965,7 +970,7 @@ function StudentApp({ student, onLogout }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 useEffect(() => { loadData(); }, []);
 
-  const getVoteCount     = (cId) => { const r = results.find(x => String(x.id) === String(cId)); return r ? parseInt(r.vote_count) : 0; };
+  const getVoteCount     = (cId) => { const r = results.find(x => String(x.id) === String(cId)); return r ? (parseInt(r.vote_count) || 0) : 0; };
   const getPositionTotal = (pId) => candidates.filter(c => String(c.positionId) === String(pId)).reduce((sum, c) => sum + getVoteCount(c.id), 0);
 
   const submitVote = async () => {
